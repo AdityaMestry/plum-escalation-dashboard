@@ -618,9 +618,10 @@
 // ═══════════════════════════════════════════════════════════
 const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTfpWzWcj5AtfzP0A1Bc2QeQN_XdpSME_0VJLKTQT899Pe_fM-jmCJnngGi3V32a6XuGuozOFp1kkM4/pub?gid=173547891&single=true&output=csv';
 const CORS_PROXIES = [
-  'https://corsproxy.io/?',
   'https://api.allorigins.win/raw?url=',
-  'https://cors-anywhere.herokuapp.com/',
+  'https://corsproxy.io/?',
+  'https://thingproxy.freeboard.io/fetch/',
+  'https://api.codetabs.com/v1/proxy?quest=',
 ];
 const REFRESH_INTERVAL_MS = 2 * 60 * 1000; // 2 minutes
 
@@ -686,21 +687,25 @@ async function fetchSheetData(isAutoRefresh = false) {
   showLoadingState(isAutoRefresh);
 
   try {
-    // Route through CORS proxy to allow browser fetch from GitHub Pages
-    const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(SHEET_CSV_URL + '&t=' + Date.now());
-    // Try each CORS proxy in sequence until one works
     let text = null;
     let lastError = null;
+
+    // Try each proxy in order — first one to succeed wins
     for (const proxy of CORS_PROXIES) {
       try {
-        const proxyUrl = proxy + encodeURIComponent(SHEET_CSV_URL + '&t=' + Date.now());
-        const res = await fetch(proxyUrl);
+        const url = proxy + encodeURIComponent(SHEET_CSV_URL);
+        const res = await fetch(url, { cache: 'no-store' });
         if (!res.ok) throw new Error('HTTP ' + res.status);
-        const t = await res.text();
+        let t = await res.text();
+        // allorigins.win wraps response in JSON
+        if (t && t.trim().startsWith('{') && t.includes('"contents"')) {
+          t = JSON.parse(t).contents;
+        }
         if (t && t.length > 100) { text = t; break; }
-      } catch (e) { lastError = e; }
+      } catch(e) { lastError = e; console.warn('Proxy failed:', proxy, e.message); }
     }
-    if (!text) throw new Error('Could not load data. ' + (lastError?.message || 'Check internet connection.'));
+
+    if (!text) throw new Error('Could not load data. ' + (lastError?.message || 'All proxies failed.'));
     const parsed = parseCSV(text);
     if (parsed.length === 0) throw new Error('No data returned');
 
