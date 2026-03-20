@@ -334,23 +334,23 @@
 
       <!-- KPI Strip -->
       <div class="kpi-grid">
-        <div class="kpi-card coral">
+        <div class="kpi-card coral" onclick="openKPIDrawer('critical')" style="cursor:pointer" title="Click to view critical escalations">
           <div class="kpi-icon">🔴</div>
           <div class="kpi-label">Critical & Breaching SLA</div>
           <div class="kpi-value" id="kpi-critical">—</div>
-          <div class="kpi-sub">High priority, SLA exceeded</div>
+          <div class="kpi-sub">High priority, SLA exceeded · <span style="color:var(--plum-coral);font-weight:700">View all →</span></div>
         </div>
-        <div class="kpi-card purple">
+        <div class="kpi-card purple" onclick="openKPIDrawer('open')" style="cursor:pointer" title="Click to view all open escalations">
           <div class="kpi-icon">📂</div>
           <div class="kpi-label">Total Open</div>
           <div class="kpi-value" id="kpi-open">—</div>
-          <div class="kpi-sub">Open + In Progress + Blocked</div>
+          <div class="kpi-sub">Open + In Progress + Blocked · <span style="color:var(--plum-purple);font-weight:700">View all →</span></div>
         </div>
-        <div class="kpi-card orange">
+        <div class="kpi-card orange" onclick="openKPIDrawer('churn')" style="cursor:pointer" title="Click to view churn risk escalations">
           <div class="kpi-icon">🚨</div>
           <div class="kpi-label">Churn Risk</div>
           <div class="kpi-value" id="kpi-churn">—</div>
-          <div class="kpi-sub">Clients at risk of leaving</div>
+          <div class="kpi-sub">Clients at risk of leaving · <span style="color:var(--medium);font-weight:700">View all →</span></div>
         </div>
         <div class="kpi-card green">
           <div class="kpi-icon">⏱</div>
@@ -527,29 +527,72 @@
 
     <!-- ══ TAB: DIGEST ══ -->
     <div class="tab-content" id="tab-digest">
-      <div class="digest-card">
-        <div class="digest-title">📋 Daily Digest · <span id="digestDate">—</span></div>
-        <div class="digest-headline">
-          Good morning, Avik. You have <span id="digestCritical">—</span> critical escalations that need your attention today.
-        </div>
-        <div class="digest-points" id="digestPoints"></div>
-      </div>
 
-      <div class="charts-row" style="grid-template-columns:1fr 1fr;">
-        <div class="chart-card">
-          <div class="chart-title">📈 Resolution Trend (Last 7 Days)</div>
-          <div class="chart-sub">Escalations resolved per day</div>
-          <div class="trend-wrap">
-            <div class="mini-bars" id="trendBars"></div>
-            <div class="mini-labels" id="trendLabels"></div>
+      <!-- Morning Greeting Card -->
+      <div style="background:linear-gradient(135deg,var(--plum-dark) 0%,#2D2044 100%);border-radius:var(--r);padding:28px 32px;color:#fff;position:relative;overflow:hidden">
+        <div style="position:absolute;top:-60px;right:-60px;width:220px;height:220px;background:radial-gradient(circle,rgba(255,92,106,.15),transparent 70%);border-radius:50%"></div>
+        <div style="position:absolute;bottom:-40px;left:100px;width:150px;height:150px;background:radial-gradient(circle,rgba(108,92,231,.15),transparent 70%);border-radius:50%"></div>
+        <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px">📋 Daily Digest · <span id="digestDate">—</span></div>
+        <div style="font-size:24px;font-weight:700;line-height:1.3;margin-bottom:6px">Good morning, <span style="color:var(--plum-coral-lt)">Avik</span> 👋</div>
+        <div style="font-size:14px;color:rgba(255,255,255,.6);margin-bottom:24px">Here's everything you need to know before starting your day.</div>
+        <!-- 4 mini stats -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+          <div style="background:rgba(255,255,255,.08);border-radius:10px;padding:14px 16px;border:1px solid rgba(255,255,255,.1)">
+            <div style="font-size:28px;font-weight:700;color:#FF5C6A" id="digestCritical">—</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:4px;font-weight:500">Critical & Breaching</div>
+          </div>
+          <div style="background:rgba(255,255,255,.08);border-radius:10px;padding:14px 16px;border:1px solid rgba(255,255,255,.1)">
+            <div style="font-size:28px;font-weight:700;color:#A29BFE" id="digestOpen">—</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:4px;font-weight:500">Total Open</div>
+          </div>
+          <div style="background:rgba(255,255,255,.08);border-radius:10px;padding:14px 16px;border:1px solid rgba(255,255,255,.1)">
+            <div style="font-size:28px;font-weight:700;color:#FF9500" id="digestChurn">—</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:4px;font-weight:500">Churn Risk</div>
+          </div>
+          <div style="background:rgba(255,255,255,.08);border-radius:10px;padding:14px 16px;border:1px solid rgba(255,255,255,.1)">
+            <div style="font-size:28px;font-weight:700;color:#34C759" id="digestResolved">—</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:4px;font-weight:500">Resolved Yesterday</div>
           </div>
         </div>
-        <div class="chart-card">
-          <div class="chart-title">🔔 New Escalations Today</div>
-          <div class="chart-sub">Received in last 24 hours</div>
-          <div id="todayEsc" style="margin-top:8px;display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+
+      <!-- Action Items + Trend Row -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+
+        <!-- Action Items -->
+        <div style="background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:20px;box-shadow:var(--shadow)">
+          <div style="font-size:13px;font-weight:700;margin-bottom:4px">⚡ Action Items for Today</div>
+          <div style="font-size:11px;color:var(--text-secondary);margin-bottom:16px">Things that need your attention right now</div>
+          <div id="digestPoints" style="display:flex;flex-direction:column;gap:10px"></div>
+        </div>
+
+        <!-- Resolution Trend -->
+        <div style="background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:20px;box-shadow:var(--shadow)">
+          <div style="font-size:13px;font-weight:700;margin-bottom:4px">📈 Resolution Trend</div>
+          <div style="font-size:11px;color:var(--text-secondary);margin-bottom:16px">Escalations resolved — last 7 days</div>
+          <div style="display:flex;align-items:flex-end;gap:8px;height:80px;margin-bottom:10px" id="trendBars"></div>
+          <div style="display:flex;gap:8px" id="trendLabels"></div>
         </div>
       </div>
+
+      <!-- Category Health + New Today -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+
+        <!-- Category Health -->
+        <div style="background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:20px;box-shadow:var(--shadow)">
+          <div style="font-size:13px;font-weight:700;margin-bottom:4px">🏥 Category Health</div>
+          <div style="font-size:11px;color:var(--text-secondary);margin-bottom:16px">Open escalations by type</div>
+          <div id="digestCatHealth" style="display:flex;flex-direction:column;gap:10px"></div>
+        </div>
+
+        <!-- New Escalations Today -->
+        <div style="background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:20px;box-shadow:var(--shadow)">
+          <div style="font-size:13px;font-weight:700;margin-bottom:4px">🔔 Recent Escalations</div>
+          <div style="font-size:11px;color:var(--text-secondary);margin-bottom:16px">Latest incoming — last 48 hours</div>
+          <div id="todayEsc" style="display:flex;flex-direction:column;gap:8px"></div>
+        </div>
+      </div>
+
     </div>
 
   </div><!-- /content -->
@@ -599,6 +642,31 @@
   </div>
 </div>
 
+<!-- ── KPI Drawer ── -->
+<div id="kpiDrawer" style="display:none;position:fixed;inset:0;z-index:900;display:none">
+  <div id="kpiBackdrop" onclick="closeKPIDrawer()" style="position:absolute;inset:0;background:rgba(28,28,46,.4);backdrop-filter:blur(3px)"></div>
+  <div id="kpiPanel" style="position:absolute;right:0;top:0;bottom:0;width:680px;max-width:95vw;background:#fff;box-shadow:-8px 0 40px rgba(28,28,46,.15);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .3s ease">
+    <div style="padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div id="drawerTitle" style="font-size:17px;font-weight:700;color:var(--text-primary)">—</div>
+        <div id="drawerSub" style="font-size:12px;color:var(--text-secondary);margin-top:2px">—</div>
+      </div>
+      <button onclick="closeKPIDrawer()" style="width:32px;height:32px;border:1px solid var(--border);border-radius:8px;background:none;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-secondary)">✕</button>
+    </div>
+    <div style="flex:1;overflow-y:auto">
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse">
+          <thead>
+            <tr id="drawerThead"></tr>
+          </thead>
+          <tbody id="drawerTable"></tbody>
+        </table>
+      </div>
+    </div>
+    <div style="padding:12px 24px;border-top:1px solid var(--border);font-size:12px;color:var(--text-secondary)" id="drawerCount">—</div>
+  </div>
+</div>
+
 <!-- ── Toast ── -->
 <div class="toast" id="toast">—</div>
 
@@ -616,13 +684,11 @@
 // ═══════════════════════════════════════════════════════════
 // CONFIG — Google Sheets CSV URL
 // ═══════════════════════════════════════════════════════════
-const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTfpWzWcj5AtfzP0A1Bc2QeQN_XdpSME_0VJLKTQT899Pe_fM-jmCJnngGi3V32a6XuGuozOFp1kkM4/pub?gid=173547891&single=true&output=csv';
-const CORS_PROXIES = [
-  'https://api.allorigins.win/raw?url=',
-  'https://corsproxy.io/?',
-  'https://thingproxy.freeboard.io/fetch/',
-  'https://api.codetabs.com/v1/proxy?quest=',
-];
+// ── n8n Webhook URLs ──
+const N8N_TEST_URL  = 'https://joeycohen.app.n8n.cloud/webhook-test/escalations';
+const N8N_PROD_URL  = 'https://joeycohen.app.n8n.cloud/webhook/escalations';
+// Tries prod first, falls back to test
+const N8N_URLS = [N8N_PROD_URL, N8N_TEST_URL];
 const REFRESH_INTERVAL_MS = 2 * 60 * 1000; // 2 minutes
 
 let DATA = [];
@@ -637,7 +703,21 @@ let isLoading = false;
 const OWNERS = ["Arun Saseedharan","Vaishnavi Bhat","Mikhel Dhiman","Ipsita Sahu","Manashi Das","Susmita Roy","Vidushi M","Rajorshi Chowdhury","Abhishek Ranjan","Subash P","Nishita Sharma","Prateek Verma","Asher Mathew","Akshay Golechha","Vakti Vedant Panda"];
 const AVATAR_COLORS = ["#FF5C6A","#6C5CE7","#FF9500","#34C759","#007AFF","#FF2D55","#5856D6","#FF3B30","#4CD964","#FF9500","#34AADC","#FF6B6B","#A29BFE","#FD79A8","#00B894"];
 
-// ═══ CSV PARSER ═══
+// ═══ DATA NORMALIZER ═══
+// n8n returns JSON rows — normalize field names to match our expected columns
+function normalizeRows(rows) {
+  return rows.map(row => {
+    // n8n Google Sheets node returns rows with exact column names from sheet
+    // Just ensure numeric fields are cast correctly
+    return {
+      ...row,
+      'Priority Score': isNaN(row['Priority Score']) ? 0 : Number(row['Priority Score']),
+      'Days Open':       isNaN(row['Days Open'])       ? 0 : Number(row['Days Open']),
+    };
+  }).filter(r => r['Escalation ID'] && r['Escalation ID'].toString().trim() !== '');
+}
+
+// ═══ CSV PARSER (kept as fallback) ═══
 function parseCSV(text) {
   const lines = text.split('\n').filter(l => l.trim());
   if (lines.length < 2) return [];
@@ -687,27 +767,22 @@ async function fetchSheetData(isAutoRefresh = false) {
   showLoadingState(isAutoRefresh);
 
   try {
-    let text = null;
+    let parsed = null;
     let lastError = null;
 
-    // Try each proxy in order — first one to succeed wins
-    for (const proxy of CORS_PROXIES) {
+    // Try prod URL first, then test URL
+    for (const url of N8N_URLS) {
       try {
-        const url = proxy + encodeURIComponent(SHEET_CSV_URL);
         const res = await fetch(url, { cache: 'no-store' });
         if (!res.ok) throw new Error('HTTP ' + res.status);
-        let t = await res.text();
-        // allorigins.win wraps response in JSON
-        if (t && t.trim().startsWith('{') && t.includes('"contents"')) {
-          t = JSON.parse(t).contents;
-        }
-        if (t && t.length > 100) { text = t; break; }
-      } catch(e) { lastError = e; console.warn('Proxy failed:', proxy, e.message); }
+        const json = await res.json();
+        // n8n returns array of row objects directly
+        const rows = Array.isArray(json) ? json : (json.data || json.rows || []);
+        if (rows.length > 0) { parsed = normalizeRows(rows); break; }
+      } catch(e) { lastError = e; console.warn('n8n URL failed:', url, e.message); }
     }
 
-    if (!text) throw new Error('Could not load data. ' + (lastError?.message || 'All proxies failed.'));
-    const parsed = parseCSV(text);
-    if (parsed.length === 0) throw new Error('No data returned');
+    if (!parsed || parsed.length === 0) throw new Error('Could not load data from n8n. ' + (lastError?.message || 'Check workflow is active.'));
 
     DATA = parsed;
     filteredData = [...DATA];
@@ -996,35 +1071,81 @@ function renderChurnTable() {
 }
 
 function renderDigest() {
-  const open=DATA.filter(d=>d.Status!=='Closed');
-  const critical=open.filter(d=>d['Priority Level']==='High'&&d['SLA Breach']==='Yes');
-  const churn=open.filter(d=>d['Churn Risk']==='Yes');
-  const noOwner=open.filter(d=>!d.Owner);
-  document.getElementById('digestCritical').textContent=critical.length;
-  document.getElementById('digestPoints').innerHTML=[
-    `<div class="digest-point"><div class="digest-dot"></div><span><strong>${critical.length}</strong> high-priority escalations are breaching SLA right now and need immediate action.</span></div>`,
-    `<div class="digest-point"><div class="digest-dot"></div><span><strong>${churn.length}</strong> clients have shown churn signals — non-renewal threats, IRDAI mentions, or legal language.</span></div>`,
-    `<div class="digest-point"><div class="digest-dot"></div><span>Top category today: <strong>Claim Issues</strong> — ${open.filter(d=>d.Category==='Claim Issue').length} open cases need resolution.</span></div>`,
-    `<div class="digest-point"><div class="digest-dot"></div><span>Team has <strong>${open.filter(d=>d.Status==='Blocked').length}</strong> blocked escalations awaiting unblocking from your end.</span></div>`,
-  ].join('');
+  const open = DATA.filter(d => d.Status !== 'Closed');
+  const critical = open.filter(d => d['Priority Level']==='High' && d['SLA Breach']==='Yes');
+  const churn = open.filter(d => d['Churn Risk']==='Yes');
+  const blocked = open.filter(d => d.Status==='Blocked');
+  const resolved = DATA.filter(d => d.Status==='Closed');
+  const claimOpen = open.filter(d => d.Category==='Claim Issue');
+  const topCat = ['Claim Issue','Onboarding','Billing','Training Request','General Escalation']
+    .map(c=>({cat:c, count:open.filter(d=>d.Category===c).length}))
+    .sort((a,b)=>b.count-a.count)[0];
 
-  // Trend bars (simulated 7 days)
-  const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-  const vals=[12,18,8,22,15,6,10];
-  const max=Math.max(...vals);
-  document.getElementById('trendBars').innerHTML=vals.map((v,i)=>`<div class="mini-bar" style="height:${v/max*100}%;background:${v===max?'var(--plum-coral)':'var(--plum-purple)'};opacity:.8"></div>`).join('');
-  document.getElementById('trendLabels').innerHTML=days.map(d=>`<div class="mini-label">${d}</div>`).join('');
+  // Header stats
+  document.getElementById('digestCritical').textContent = critical.length;
+  document.getElementById('digestOpen').textContent = open.length;
+  document.getElementById('digestChurn').textContent = churn.length;
+  document.getElementById('digestResolved').textContent = resolved.length;
 
-  // Today's escalations (last 2 days in data)
-  const recent=DATA.filter(d=>d['Days Open']<=2&&d.Status!=='Closed').slice(0,5);
-  document.getElementById('todayEsc').innerHTML=recent.length?recent.map(d=>`
-    <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);" onclick="openModal('${d['Escalation ID']}')">
-      <div style="flex:1">
-        <div style="font-weight:600;font-size:12px">${d['Company Name']}</div>
-        <div style="font-size:11px;color:var(--text-secondary)">${d.Category}</div>
+  // Action items
+  const actions = [
+    { icon:'🔴', color:'#FF5C6A', bg:'#FFF0F1', text:`<strong>${critical.length} critical escalations</strong> are breaching SLA — needs immediate action today.` },
+    { icon:'🚨', color:'#FF9500', bg:'#FFF8EC', text:`<strong>${churn.length} clients</strong> showing churn signals — IRDAI threats, non-renewal language detected.` },
+    { icon:'🔒', color:'#6C5CE7', bg:'#F3F0FF', text:`<strong>${blocked.length} escalations</strong> are blocked and need your unblocking to proceed.` },
+    { icon:'📊', color:'#34C759', bg:'#EDFFF3', text:`Top issue category: <strong>${topCat.cat}</strong> with ${topCat.count} open cases needing resolution.` },
+  ];
+  document.getElementById('digestPoints').innerHTML = actions.map(a => `
+    <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:${a.bg};border-radius:8px;border-left:3px solid ${a.color}">
+      <span style="font-size:16px;flex-shrink:0">${a.icon}</span>
+      <span style="font-size:12px;color:var(--text-primary);line-height:1.5">${a.text}</span>
+    </div>`).join('');
+
+  // Trend bars
+  const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Today'];
+  const vals = [12,18,8,22,15,6,10];
+  const max = Math.max(...vals);
+  document.getElementById('trendBars').innerHTML = vals.map((v,i) => `
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+      <div style="font-size:10px;font-weight:700;color:${v===max?'var(--plum-coral)':'var(--text-secondary)'}">${v}</div>
+      <div style="width:100%;height:${Math.round(v/max*60)}px;background:${v===max?'var(--plum-coral)':'var(--plum-purple)'};border-radius:4px 4px 0 0;opacity:.85;min-height:4px"></div>
+    </div>`).join('');
+  document.getElementById('trendLabels').innerHTML = days.map(d => `
+    <div style="flex:1;text-align:center;font-size:10px;color:var(--text-muted)">${d}</div>`).join('');
+
+  // Category health bars
+  const cats = [
+    {name:'Claim Issue', color:'#FF5C6A'},
+    {name:'Onboarding', color:'#6C5CE7'},
+    {name:'Billing', color:'#FF9500'},
+    {name:'Training Request', color:'#34C759'},
+    {name:'General Escalation', color:'#007AFF'},
+  ];
+  const maxCat = Math.max(...cats.map(c => open.filter(d=>d.Category===c.name).length));
+  document.getElementById('digestCatHealth').innerHTML = cats.map(c => {
+    const count = open.filter(d => d.Category===c.name).length;
+    return `
+    <div>
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
+        <span style="color:var(--text-secondary);font-weight:500">${c.name}</span>
+        <span style="font-weight:700;color:var(--text-primary)">${count}</span>
+      </div>
+      <div style="background:var(--bg);border-radius:20px;height:6px;overflow:hidden">
+        <div style="height:100%;border-radius:20px;background:${c.color};width:${maxCat?Math.round(count/maxCat*100):0}%;transition:width .6s ease"></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Recent escalations
+  const recent = DATA.filter(d => d['Days Open'] <= 2 && d.Status !== 'Closed').slice(0,6);
+  document.getElementById('todayEsc').innerHTML = recent.length ? recent.map(d => `
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="openModal('${d['Escalation ID']}')">
+      <div style="width:36px;height:36px;border-radius:8px;background:var(--plum-rose);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">${d.Source==='Email'?'📧':d.Source==='Slack'?'💬':'📱'}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:600;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${d['Company Name']}</div>
+        <div style="font-size:11px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${d['AI Summary'].slice(0,60)}...</div>
       </div>
       ${priPill(d['Priority Level'])}
-    </div>`).join(''):'<div style="color:var(--text-muted);font-size:12px;padding:12px 0">No new escalations in last 2 days</div>';
+    </div>`).join('') : '<div style="color:var(--text-muted);font-size:12px;padding:12px 0;text-align:center">No new escalations in last 48 hours ✅</div>';
 }
 
 // ═══ MODAL ═══
@@ -1104,7 +1225,69 @@ function showToast(msg) {
 }
 
 // Close modal on Escape
-document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeModal(); closeKPIDrawer(); } });
+
+// ═══ KPI DRAWER ═══
+function openKPIDrawer(type) {
+  let rows = [];
+  let title = '';
+  let sub = '';
+
+  if (type === 'critical') {
+    rows = DATA.filter(d => d['Priority Level']==='High' && d['SLA Breach']==='Yes' && d.Status!=='Closed')
+               .sort((a,b) => b['Days Open'] - a['Days Open']);
+    title = '🔴 Critical & Breaching SLA';
+    sub = rows.length + ' escalations need immediate attention';
+  } else if (type === 'open') {
+    rows = DATA.filter(d => d.Status !== 'Closed')
+               .sort((a,b) => b['Priority Score'] - a['Priority Score']);
+    title = '📂 All Open Escalations';
+    sub = rows.length + ' escalations currently open';
+  } else if (type === 'churn') {
+    rows = DATA.filter(d => d['Churn Risk']==='Yes' && d.Status!=='Closed')
+               .sort((a,b) => b['Priority Score'] - a['Priority Score']);
+    title = '🚨 Churn Risk Escalations';
+    sub = rows.length + ' clients at risk of leaving';
+  }
+
+  document.getElementById('drawerTitle').textContent = title;
+  document.getElementById('drawerSub').textContent = sub;
+  document.getElementById('drawerCount').textContent = 'Showing ' + Math.min(rows.length, 100) + ' of ' + rows.length;
+
+  // Header
+  document.getElementById('drawerThead').innerHTML = `
+    <th style="background:var(--bg);padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--border);white-space:nowrap">ID</th>
+    <th style="background:var(--bg);padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--border);white-space:nowrap">Company</th>
+    <th style="background:var(--bg);padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--border);white-space:nowrap">Summary</th>
+    <th style="background:var(--bg);padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--border);white-space:nowrap">Priority</th>
+    <th style="background:var(--bg);padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--border);white-space:nowrap">Status</th>
+    <th style="background:var(--bg);padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--border);white-space:nowrap">Days</th>
+    <th style="background:var(--bg);padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--border);white-space:nowrap">Owner</th>`;
+
+  // Rows
+  document.getElementById('drawerTable').innerHTML = rows.slice(0,100).map(d => `
+    <tr onclick="openModal('${d['Escalation ID']}')" style="border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s" onmouseover="this.style.background='var(--plum-rose)'" onmouseout="this.style.background=''">
+      <td style="padding:10px 14px;font-family:'DM Mono',monospace;font-size:11px;color:var(--text-secondary)">${d['Escalation ID']}</td>
+      <td style="padding:10px 14px;font-weight:600;font-size:12px;white-space:nowrap">${d['Company Name']}</td>
+      <td style="padding:10px 14px;max-width:220px"><div style="font-size:11px;color:var(--text-secondary);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${d['AI Summary']}</div></td>
+      <td style="padding:10px 14px">${priPill(d['Priority Level'])}</td>
+      <td style="padding:10px 14px">${statusPill(d.Status)}</td>
+      <td style="padding:10px 14px;font-weight:700;font-size:12px;color:${d['Days Open']>90?'#FF5C6A':d['Days Open']>30?'#FF9500':'#34C759'}">${d['Days Open']}d</td>
+      <td style="padding:10px 14px;font-size:11px;white-space:nowrap">${d.Owner ? d.Owner.split(' ')[0]+' '+( d.Owner.split(' ')[1]?d.Owner.split(' ')[1][0]+'.':'') : '—'}</td>
+    </tr>`).join('');
+
+  // Show drawer
+  const drawer = document.getElementById('kpiDrawer');
+  const panel = document.getElementById('kpiPanel');
+  drawer.style.display = 'block';
+  setTimeout(() => panel.style.transform = 'translateX(0)', 10);
+}
+
+function closeKPIDrawer() {
+  const panel = document.getElementById('kpiPanel');
+  panel.style.transform = 'translateX(100%)';
+  setTimeout(() => document.getElementById('kpiDrawer').style.display = 'none', 300);
+}
 </script>
 </body>
 </html>
